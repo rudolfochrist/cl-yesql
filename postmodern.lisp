@@ -1,29 +1,34 @@
 (defpackage #:cl-yesql/postmodern
   (:use #:cl #:alexandria #:serapeum #:cl-yesql)
   (:shadowing-import-from #:cl-yesql #:import)
-  (:import-from #:pomo #:execute #:prepare #:*database*)
+  (:import-from #:pomo #:execute #:prepare #:with-connection)
   (:shadowing-import-from #:ppcre #:scan)
   (:shadowing-import-from #:pomo #:query)
   (:shadowing-import-from #:cl-yesql/lang
-    #:read-module
-    #:module-progn)
+                          #:read-module
+                          #:module-progn)
   (:export #:yesql-postmodern #:static-exports
-           #:read-module #:module-progn))
+           #:read-module #:module-progn
+           #:*dbconn*))
 (in-package #:cl-yesql/postmodern)
 
+(defvar *dbconn* '())
+
 (defun check-connection ()
-  (loop until *database* do
-    (cerror "Check again"
-            "There is no database connection.")))
+  (loop until *dbconn*
+        do
+           (cerror "Check again"
+                   "There is no database connection spec.")))
 
 (defmacro defquery (name args &body (docstring query))
   `(defun ,name ,args
      ,docstring
      (check-connection)
-     ,(build-query-tree
-       query
-       (lambda (q)
-         (query-body q)))))
+     (with-connection *dbconn*
+       ,(build-query-tree
+         query
+         (lambda (q)
+           (query-body q))))))
 
 (defun static-exports (source)
   (yesql-static-exports source))
