@@ -4,6 +4,7 @@
   :description "Common Lisp library for using SQL."
   :author "Paul M. Rodriguez <pmr@ruricolist.com>"
   :license "MIT"
+  :version  (:read-file-line "version")
   :class :package-inferred-system
   :defsystem-depends-on (:asdf-package-system)
   :depends-on ("cl-yesql/cl-yesql")
